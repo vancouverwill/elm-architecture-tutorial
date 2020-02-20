@@ -17,13 +17,16 @@ main =
 
 
 type alias Model =
-  { content : String
+  { content : String,
+    contentblah: String
   }
 
 
 init : Model
 init =
-  { content = "" }
+  { content = "",
+    contentblah = "blah"
+  }
 
 
 
@@ -38,7 +41,7 @@ update : Msg -> Model -> Model
 update msg model =
   case msg of
     Change newContent ->
-      { model | content = newContent }
+      { model | content = newContent, contentblah = model.content ++ "blah" }
 
 
 
@@ -50,4 +53,6 @@ view model =
   div []
     [ input [ placeholder "Text to reverse", value model.content, onInput Change ] []
     , div [] [ text (String.reverse model.content) ]
+    , div [] [ text ( model.contentblah) ]
+    , div [] [ text ( String.fromInt (String.length  model.contentblah)) ]
     ]

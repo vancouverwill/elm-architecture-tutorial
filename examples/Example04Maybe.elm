@@ -1,3 +1,5 @@
+module Example04Maybe exposing (..)
+
 import Browser
 import Html exposing (Html, Attribute, span, input, text)
 import Html.Attributes exposing (..)
@@ -44,15 +46,23 @@ update msg model =
 
 -- VIEW
 
+type MaybeAge
+  = Age Int
+  | InvalidInput
+
 
 view : Model -> Html Msg
 view model =
   case String.toFloat model.input of
     Just celsius ->
-      viewConverter model.input "blue" (String.fromFloat (celsius * 1.8 + 32))
+      -- viewConverter model.input "blue" (String.fromFloat (celsius * 1.8 + 32))
+      case String.toInt model.input of 
+        Just val -> viewConverter model.input "blue" (String.fromFloat (celsius * 1.8 + 32))
+        Nothing ->  text "Error" -- never reaches here as caught by MaybeAge
+        
 
     Nothing ->
-      viewConverter model.input "red" "???"
+      viewConverter model.input "red" ("??? " ++ model.input ++ " is not valid")
 
 
 viewConverter : String -> String -> String -> Html Msg

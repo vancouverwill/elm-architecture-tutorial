@@ -1,3 +1,5 @@
+module Example05Http exposing (..)
+
 import Browser
 import Html exposing (Html, text, pre)
 import Http
@@ -21,7 +23,7 @@ main =
 
 
 type Model
-  = Failure
+  = Failure String
   | Loading
   | Success String
 
@@ -52,8 +54,9 @@ update msg model =
         Ok fullText ->
           (Success fullText, Cmd.none)
 
-        Err _ ->
-          (Failure, Cmd.none)
+        Err err ->
+
+          (Failure "err", Cmd.none)
 
 
 
@@ -72,8 +75,8 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
   case model of
-    Failure ->
-      text "I was unable to load your book."
+    Failure error ->
+      text ("I was unable to load your book." ++ error)
 
     Loading ->
       text "Loading..."

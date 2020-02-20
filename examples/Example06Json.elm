@@ -1,3 +1,5 @@
+module Example06Json exposing (..)
+
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -22,16 +24,16 @@ main =
 
 -- MODEL
 
-
-type Model
+type ModelStatus
   = Failure
   | Loading
   | Success String
 
+type alias Model = { status : ModelStatus }
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  (Loading, getRandomCatGif)
+  ( Model Loading, getRandomCatGif)
 
 
 
@@ -47,15 +49,15 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     MorePlease ->
-      (Loading, getRandomCatGif)
+      (Model Loading, getRandomCatGif)
 
     GotGif result ->
       case result of
         Ok url ->
-          (Success url, Cmd.none)
+          (Model (Success url), Cmd.none)
 
         Err _ ->
-          (Failure, Cmd.none)
+          (Model Failure, Cmd.none)
 
 
 
@@ -81,7 +83,7 @@ view model =
 
 viewGif : Model -> Html Msg
 viewGif model =
-  case model of
+  case model.status of
     Failure ->
       div []
         [ text "I could not load a random cat for some reason. "

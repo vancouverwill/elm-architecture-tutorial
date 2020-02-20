@@ -4,10 +4,12 @@ import Browser
 import Html exposing (..)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
+import Iso8601
 import Svg exposing (Svg, line, svg)
 import Svg.Attributes exposing (height, stroke, viewBox, width, x1, x2, y1, y2)
 import Task
 import Time
+import Time.Extra exposing (Interval(..), diff)
 
 
 
@@ -58,14 +60,10 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case (msg, model.subscribe) of
     (Tick newTime, True) ->
-        --if model.subscribe then
               ( { model | time = newTime }
               , Cmd.none
               )
-        --else
-        --      (model, Cmd.none)
     (Tick _, False) ->
-            --if model.subscribe then
                  (model, Cmd.none)
 
     (AdjustTimeZone newZone, _) ->
@@ -116,6 +114,41 @@ secondHand sec =
 
 
 
+now = "2020-02-08T16:52:19.956973+00:00"
+badnow = "2020-20"
+
+
+displayDifference: Int -> String
+displayDifference seconds =
+    let
+        minute = 60
+        hour = 60 * minute
+        day = hour * 24
+        secondsFloat = toFloat seconds
+    in
+    if secondsFloat < 0 then
+        "this project is made in the future???"
+    else if  secondsFloat < 60 then
+        "less than a minute"
+    else  if secondsFloat < 3600 then
+        String.fromInt(round (secondsFloat / minute)) ++ " minutes"
+    else if secondsFloat < day then
+        String.fromInt(round (secondsFloat / hour)) ++ " hours"
+    else
+        String.fromInt(round (secondsFloat / day)) ++ " days"
+
+
+diffStr: Model -> String
+diffStr model =
+    case (Iso8601.toTime now) of
+        Ok parsedTime ->
+            let
+                d = diff Second model.zone parsedTime model.time
+            in
+            "Good:" ++ (d  |> displayDifference)
+        Err _ ->
+            "Error parsing date"
+
 view : Model -> Html Msg
 view model =
   let
@@ -123,7 +156,6 @@ view model =
     minuteString = String.fromInt (Time.toMinute model.zone model.time)
     second = Time.toSecond model.zone model.time
     secondString = String.fromInt second
-    testSecond = toFloat (Time.toSecond model.zone model.time)
   in
   div [style "font-family" "Arial", style "padding" "30px"]
     [
@@ -141,9 +173,9 @@ view model =
                   , viewBox "0 0 120 120"
                   , style "border" "solid black"
                   ] [ secondHand (getSecond model) ],
-              --] [ secondHand 180 ],
 
         p [] [ text ("angle:" ++ String.fromFloat (angle (toFloat second)))]
         , p [] [ text ("x:" ++ (x (angle(toFloat second))))]
         , p [] [ text ("y:" ++ (y (angle(toFloat second))))]
+        , p [] [ text ("diff:" ++ diffStr model)]
         ]
